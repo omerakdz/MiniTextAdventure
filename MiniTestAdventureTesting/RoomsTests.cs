@@ -30,10 +30,17 @@ namespace MiniTestAdventureTesting
         [TestMethod]
         public void PickingUpKey_ShouldAllowGoingUpToWin()
         {
+            // Stap 1: ga naar sleutelkamer en pak sleutel
             rooms.Go(Direction.East);
             rooms.Take("key");
+
+            // Stap 2: terug naar Start
             rooms.Go(Direction.West);
+
+            // Stap 3: ga naar Deur
             var result = rooms.Go(Direction.North);
+
+            // Controleer dat speler gewonnen heeft
             Assert.AreEqual(MoveResult.Won, result);
         }
 
@@ -47,7 +54,7 @@ namespace MiniTestAdventureTesting
         }
 
         [TestMethod]
-        public void FightWithSword_ShouldKillMonster_AndAllowLeaving() // werkt niet
+        public void FightWithSword_ShouldKillMonster_AndAllowLeaving() 
         {
             
             rooms.Go(Direction.South);
