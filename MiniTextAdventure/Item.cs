@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Mini_Text_Adventure
+namespace MiniTextAdventure
 {
-    internal class Item
+    public class Item
     {
 		private string id;
 

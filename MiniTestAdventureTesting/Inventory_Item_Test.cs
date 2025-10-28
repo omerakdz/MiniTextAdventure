@@ -1,8 +1,8 @@
-﻿using Mini_Text_Adventure;
-namespace TEstingAdventureGame
+﻿using MiniTextAdventure;
+namespace MiniTestAdventureTesting
 {
     [TestClass]
-    public sealed class Test1
+    public sealed class Inventory_Item_Test
     {
         Inventory inv = new Inventory();
         [TestMethod]
