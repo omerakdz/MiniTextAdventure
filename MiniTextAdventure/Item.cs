@@ -8,6 +8,7 @@ namespace MiniTextAdventure
 {
     public class Item
     {
+
 		private string id;
 
 		public string Id
@@ -38,12 +39,18 @@ namespace MiniTextAdventure
 			name = name1; 
 			description = description1;
 		}
+        public Item(string id1)
+        {
+            id = id1;
+            name = id;
+            description = "";
+        }
 
         public override string ToString()
         {
-            return $"{Name}: {Description}";
+            return $"{Name}: {description}";
         }
 
+    }
 
-	}
 }

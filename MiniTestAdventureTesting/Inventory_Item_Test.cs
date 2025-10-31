@@ -13,7 +13,7 @@ namespace MiniTestAdventureTesting
 
             inv.Add(sword);
 
-            Assert.IsTrue(inv.HasItem(sword.Id),"You should have a sword in je inventory");
+            Assert.IsTrue(inv.Has(sword.Id),"You should have a sword in je inventory");
             
         }
         [TestMethod]
@@ -23,10 +23,10 @@ namespace MiniTestAdventureTesting
             Item light = new Item("flashlight", "Zaklamp", "Its a light source, helping you see in the dark.");
 
             inv.Add(light);
-            Assert.IsTrue(inv.HasItem(light.Id),$"De {light.Name} is niet toegevoegd in je inventaris.");
+            Assert.IsTrue(inv.Has(light.Id),$"De {light.Name} is niet toegevoegd in je inventaris.");
 
             inv.Remove(light);
-            Assert.IsFalse(inv.HasItem(light.Id), $"De {light.Name} zit nog steeds in je inventory.");
+            Assert.IsFalse(inv.Has(light.Id), $"De {light.Name} zit nog steeds in je inventory.");
         }
         [TestMethod]
         public void ListItem_Shouldwork()

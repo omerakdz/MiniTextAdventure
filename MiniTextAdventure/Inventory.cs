@@ -1,37 +1,56 @@
 ﻿using System;
 using System.Collections.Generic;
+
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
 
 namespace MiniTextAdventure
 {
     public class Inventory
     {
-        private List<Item> items = new List<Item>();
+
+        private readonly List<Item> items = new List<Item>();
+
+        public bool Has(string id)
+        {
+            bool hasIt = false;
+
+            foreach (Item i in items)
+            {
+                if (i.Id == id)
+                {
+                    hasIt = true;
+                }
+            }
+
+            return hasIt;
+        }
 
         public void Add(Item item)
         {
-            if (item != null) return;
-            bool bestaat = false;
-
-            foreach(Item i in items)
+            if (item == null)
             {
-                if(i.Id == item.Id)
-                {
-                    bestaat = true;
-                    break;
-                }
-
+                Console.WriteLine("Kan geen ongeldig item toevoegen (item is null).");
+                return;
             }
 
-            if (!bestaat)
+            if (Has(item.Id))
             {
-                items.Add(item);
+                Console.WriteLine($"Het item '{item.Name}' zit al in je inventaris.");
             }
             else
             {
-                Console.WriteLine("Deze item zit al in je inventaris");
+                items.Add(item);
+                Console.WriteLine($"'{item.Name}' toegevoegd aan je inventaris.");
+            }
+        }
+        public void Add(string id)
+        {
+            if (!Has(id))
+            {
+                items.Add(new Item(id));
             }
         }
 
@@ -52,20 +71,7 @@ namespace MiniTextAdventure
                 }
             }
         }
-        public bool HasItem(string id)
-        {
-            bool hasIt = false;
-
-            foreach (Item i in items)
-            {
-                if(i.Id == id)
-                {
-                    hasIt = true;
-                }
-            }
-
-            return hasIt;
-        }
+        
         public string ListItems()
         {
             string lijstItems = "";
@@ -81,5 +87,18 @@ namespace MiniTextAdventure
 
             return begin + lijstItems;
         }
+
+        public void Show()
+        {
+            if (items.Count == 0)
+                Console.WriteLine("Je draagt niets bij je.");
+            else
+            {
+                Console.WriteLine("Je draagt bij je:");
+                foreach (var i in items)
+                    Console.WriteLine("- " + i);
+            }
+        }
+
     }
 }
