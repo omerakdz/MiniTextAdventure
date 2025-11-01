@@ -30,14 +30,14 @@ namespace MiniTestAdventureTesting
         [TestMethod]
         public void PickingUpKey_ShouldAllowGoingUpToWin()
         {
-            // Stap 1: ga naar sleutelkamer en pak sleutel
+            // ga sleutelkamer en pak sleutel
             rooms.Go(Direction.East);
             rooms.Take("key");
 
-            // Stap 2: terug naar Start
+            // terug  Start
             rooms.Go(Direction.West);
 
-            // Stap 3: ga naar Deur
+            //ga naar Deur
             var result = rooms.Go(Direction.North);
 
             // Controleer dat speler gewonnen heeft

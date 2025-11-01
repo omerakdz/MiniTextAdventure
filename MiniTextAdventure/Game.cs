@@ -5,52 +5,52 @@ namespace MiniTextAdventure
 {
     public class Game
     {
-        public Room Current;
-        public Inventory Inventory = new Inventory();
+        public Room CurrentRoom;
+        public Inventory PlayerInventory = new Inventory();
         public bool GameOver = false;
         public bool GameWon = false;
 
         public Game()
         {
-            // Kamers
-            Room start = new Room("Start", "Het middelpunt van de wereld.");
-            Room links = new Room("Links", "Je stapt in een val. Dood!");
-            links.IsLethal = true;
+            // Rooms
+            Room startRoom = new Room("Start", "Het middelpunt van de wereld.");
+            Room leftRoom = new Room("Links", "Je stapt in een val. Dood!");
+            leftRoom.IsLethal = true;
 
-            Room rechts = new Room("Rechts", "Er ligt iets glimmends op de grond.");
-            rechts.Items.Add("key");
+            Room rightRoom = new Room("Rechts", "Er ligt iets glimmends op de grond.");
+            rightRoom.Items.Add("key");
 
-            Room boven = new Room("Boven", "Een deur die alleen opent met een sleutel.");
-            boven.RequiresItem = true;
-            boven.RequiredItemId = "key";
+            Room upperRoom = new Room("Boven", "Een deur die alleen opent met een sleutel.");
+            upperRoom.RequiresItem = true;
+            upperRoom.RequiredItemId = "key";
 
-            Room beneden = new Room("Beneden", "Een trap naar beneden.");
-            beneden.Items.Add("sword");
+            Room lowerRoom = new Room("Beneden", "Een trap naar beneden.");
+            lowerRoom.Items.Add("sword");
 
-            Room dieper = new Room("Dieper", "Een grot met een monster!");
-            dieper.HasMonster = true;
-            dieper.MonsterAlive = true;
+            Room deeperRoom = new Room("Dieper", "Een grot met een monster!");
+            deeperRoom.HasMonster = true;
+            deeperRoom.MonsterAlive = true;
 
-            // Verbindingen
-            start.Connect(Direction.West, links);
-            start.Connect(Direction.East, rechts);
-            start.Connect(Direction.North, boven);
-            start.Connect(Direction.South, beneden);
+            // Connections
+            startRoom.Connect(Direction.West, leftRoom);
+            startRoom.Connect(Direction.East, rightRoom);
+            startRoom.Connect(Direction.North, upperRoom);
+            startRoom.Connect(Direction.South, lowerRoom);
 
-            beneden.Connect(Direction.North, start);
-            beneden.Connect(Direction.South, dieper);
+            lowerRoom.Connect(Direction.North, startRoom);
+            lowerRoom.Connect(Direction.South, deeperRoom);
 
-            dieper.Connect(Direction.North, beneden);
+            deeperRoom.Connect(Direction.North, lowerRoom);
 
-            Current = start;
+            CurrentRoom = startRoom;
         }
 
         public void Take(string itemId)
         {
-            if (Current.Items.Contains(itemId))
+            if (CurrentRoom.Items.Contains(itemId))
             {
-                Inventory.Add(itemId);
-                Current.Items.Remove(itemId);
+                PlayerInventory.Add(itemId);
+                CurrentRoom.Items.Remove(itemId);
                 Console.WriteLine($"Je neemt de {itemId}.");
             }
             else
@@ -59,64 +59,64 @@ namespace MiniTextAdventure
             }
         }
 
-        public void Move(Direction dir)
+        public void Move(Direction direction)
         {
-            if (Current.HasMonster && Current.MonsterAlive)
+            if (CurrentRoom.HasMonster && CurrentRoom.MonsterAlive)
             {
                 GameOver = true;
                 Console.WriteLine("Je probeert te vluchten, maar het monster grijpt je! GAME OVER.");
                 return;
             }
 
-            Room next = Current.GetExit(dir);
-            if (next == null)
+            Room nextRoom = CurrentRoom.GetExit(direction);
+            if (nextRoom == null)
             {
                 Console.WriteLine("Je kunt daar niet heen.");
                 return;
             }
 
-            if (next.IsLethal)
+            if (nextRoom.IsLethal)
             {
                 GameOver = true;
                 Console.WriteLine("Je bent dood. GAME OVER.");
                 return;
             }
 
-            if (next.RequiresItem && !Inventory.Has(next.RequiredItemId))
+            if (nextRoom.RequiresItem && !PlayerInventory.Has(nextRoom.RequiredItemId))
             {
-                Console.WriteLine($"Je hebt een {next.RequiredItemId} nodig om deze kamer te betreden.");
+                Console.WriteLine($"Je hebt een {nextRoom.RequiredItemId} nodig om deze kamer te betreden.");
                 return;
             }
 
-            Current = next;
+            CurrentRoom = nextRoom;
 
-            if (Current.Name == "Boven" && Inventory.Has("key"))
+            if (CurrentRoom.Name == "Boven" && PlayerInventory.Has("key"))
             {
                 GameWon = true;
                 Console.WriteLine("Je opent de deur met de sleutel en ontsnapt! Je wint!");
             }
             else
             {
-                Console.WriteLine($"Je gaat naar {Current.Name}.");
+                Console.WriteLine($"Je gaat naar {CurrentRoom.Name}.");
             }
         }
 
         public void Fight()
         {
-            if (!Current.HasMonster || !Current.MonsterAlive)
+            if (!CurrentRoom.HasMonster || !CurrentRoom.MonsterAlive)
             {
                 Console.WriteLine("Er is hier geen monster.");
                 return;
             }
 
-            if (!Inventory.Has("sword"))
+            if (!PlayerInventory.Has("sword"))
             {
                 GameOver = true;
                 Console.WriteLine("Je hebt geen zwaard! Het monster verslaat je. GAME OVER.");
                 return;
             }
 
-            Current.MonsterAlive = false;
+            CurrentRoom.MonsterAlive = false;
             Console.WriteLine("Je gebruikt je zwaard en verslaat het monster! De kamer is nu veilig.");
         }
     }
