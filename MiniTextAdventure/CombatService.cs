@@ -1,51 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MiniTextAdventure;
 
-namespace MiniTextAdventure
+public enum FightResult { NoMonsterHere, NoWeapon, MonsterAlreadyDead, Victory }
+
+public class CombatService
 {
+    private Inventory _inventory;
+    public CombatService(Inventory inventory) => _inventory = inventory;
 
-    public enum FightResult{ Victory, NoWeapon, NoMonsterHere, MonsterAlreadyDead, PlayerDied}
-    public class CombatService
+    public FightResult Fight(Room room)
     {
-        private readonly Inventory _inventory;
+        if (!room.HasMonster) return FightResult.NoMonsterHere;
+        if (!room.MonsterAlive) return FightResult.MonsterAlreadyDead;
+        if (!_inventory.Has("sword")) return FightResult.NoWeapon;
 
-        public CombatService(Inventory inventory)
-        {
-            _inventory = inventory;
-        }
-
-        public FightResult Fight(Room currentRoom)
-        {
-            if (currentRoom == null)
-            {
-                throw new ArgumentNullException(nameof(currentRoom));
-            }
-                
-
-            if (!currentRoom.HasMonster)
-            {
-                return FightResult.NoMonsterHere;
-            }
-               
-            if (!currentRoom.MonsterAlive)
-            {
-                return FightResult.MonsterAlreadyDead;
-            }
-                
-
-            if (!_inventory.Has("sword"))
-            {
-                return FightResult.NoWeapon;
-            }
-                
-
-            currentRoom.MonsterAlive = false;
-            Console.WriteLine("Je gebruikt je zwaard en verslaat het monster! De kamer is nu veilig.");
-            return FightResult.Victory;
-        }
+        room.MonsterAlive = false;
+        return FightResult.Victory;
     }
 }
-

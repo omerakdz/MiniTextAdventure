@@ -32,7 +32,7 @@ namespace MiniTestAdventureTesting
         {
             // ga sleutelkamer en pak sleutel
             rooms.Go(Direction.East);
-            rooms.Take("key");
+            rooms.Take("key", new Inventory());
 
             // terug  Start
             rooms.Go(Direction.West);
@@ -54,18 +54,20 @@ namespace MiniTestAdventureTesting
         }
 
         [TestMethod]
-        public void FightWithSword_ShouldKillMonster_AndAllowLeaving() 
+        public void FightWithSword_ShouldKillMonster_AndAllowLeaving()
         {
-            
-            rooms.Go(Direction.South);
-            rooms.Take("sword");
-            
-            rooms.Go(Direction.South);
-            var fightResult = rooms.Fight();
-            StringAssert.Contains(fightResult, "verslagen");
-            
-            var moveResult = rooms.Go(Direction.North);
-            Assert.AreEqual(MoveResult.Moved, moveResult);
+            var inventory = new Inventory();
+
+            rooms.Go(Direction.South); // naar Kelder
+            rooms.Take("sword", inventory); // pak zwaard
+
+            rooms.Go(Direction.South); // naar Monsterkamer
+            var fightResult = rooms.Fight(inventory);
+
+            Assert.AreEqual(FightResult.Victory, fightResult, "Het monster moet verslagen zijn.");
+
+            var moveResult = rooms.Go(Direction.North); // terug naar Kelder
+            Assert.AreEqual(MoveResult.Moved, moveResult, "Speler moet veilig kunnen teruggaan.");
         }
     }
 }

@@ -1,130 +1,58 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using MiniTextAdventure;
 
-namespace MiniTextAdventure
+public class Game
 {
-    public class Game
+    public Rooms Room = new Rooms();
+    public Inventory PlayerInventory = new Inventory();
+    public bool GameOver = false;
+    public bool GameWon = false;
+
+    public void Move(Direction dir)
     {
-        public Room CurrentRoom;
-        public Inventory PlayerInventory = new Inventory();
-        public bool GameOver = false;
-        public bool GameWon = false;
-
-        public Game()
+        var result = Room.Go(dir);
+        switch (result)
         {
-            // Rooms
-            Room startRoom = new Room("Start", "Het middelpunt van de wereld.");
-            Room leftRoom = new Room("Links", "Je stapt in een val. Dood!");
-            leftRoom.IsLethal = true;
-
-            Room rightRoom = new Room("Rechts", "Er ligt iets glimmends op de grond.");
-            rightRoom.Items.Add("key");
-
-            Room upperRoom = new Room("Boven", "Een deur die alleen opent met een sleutel.");
-            upperRoom.RequiresItem = true;
-            upperRoom.RequiredItemId = "key";
-
-            Room lowerRoom = new Room("Beneden", "Een trap naar beneden.");
-            lowerRoom.Items.Add("sword");
-
-            Room deeperRoom = new Room("Dieper", "Een grot met een monster!");
-            deeperRoom.HasMonster = true;
-            deeperRoom.MonsterAlive = true;
-
-            // Connections
-            startRoom.Connect(Direction.West, leftRoom);
-            startRoom.Connect(Direction.East, rightRoom);
-            startRoom.Connect(Direction.North, upperRoom);
-            startRoom.Connect(Direction.South, lowerRoom);
-
-            lowerRoom.Connect(Direction.North, startRoom);
-            lowerRoom.Connect(Direction.South, deeperRoom);
-
-            deeperRoom.Connect(Direction.North, lowerRoom);
-
-            CurrentRoom = startRoom;
-        }
-
-        public void Take(string itemId)
-        {
-            if (CurrentRoom.Items.Contains(itemId))
-            {
-                PlayerInventory.Add(itemId);
-                CurrentRoom.Items.Remove(itemId);
-                Console.WriteLine($"Je neemt de {itemId}.");
-            }
-            else
-            {
-                Console.WriteLine($"Er ligt geen {itemId} hier.");
-            }
-        }
-
-        public void Move(Direction direction)
-        {
-            if (CurrentRoom.HasMonster && CurrentRoom.MonsterAlive)
-            {
-                GameOver = true;
-                Console.WriteLine("Je probeert te vluchten, maar het monster grijpt je! GAME OVER.");
-                return;
-            }
-
-            Room nextRoom = CurrentRoom.GetExit(direction);
-            if (nextRoom == null)
-            {
-                Console.WriteLine("Je kunt daar niet heen.");
-                return;
-            }
-
-            if (nextRoom.IsLethal)
-            {
+            case MoveResult.Moved:
+                Console.WriteLine($"Je gaat naar {Room.CurrentRoom.Name}.");
+                break;
+            case MoveResult.BlockedMissingKey:
+                Console.WriteLine("Je hebt een sleutel nodig om deze kamer te betreden.");
+                break;
+            case MoveResult.Died:
                 GameOver = true;
                 Console.WriteLine("Je bent dood. GAME OVER.");
-                return;
-            }
-
-            if (nextRoom.RequiresItem && !PlayerInventory.Has(nextRoom.RequiredItemId))
-            {
-                Console.WriteLine($"Je hebt een {nextRoom.RequiredItemId} nodig om deze kamer te betreden.");
-                return;
-            }
-
-            CurrentRoom = nextRoom;
-
-            if (CurrentRoom.Name == "Boven" && PlayerInventory.Has("key"))
-            {
+                break;
+            case MoveResult.Won:
                 GameWon = true;
-                Console.WriteLine("Je opent de deur met de sleutel en ontsnapt! Je wint!");
-            }
-            else
-            {
-                Console.WriteLine($"Je gaat naar {CurrentRoom.Name}.");
-            }
+                Console.WriteLine("Je opent de deur en ontsnapt! Je wint!");
+                break;
         }
+    }
 
-        public void Fight()
+    public void Take(string itemId)
+    {
+        string msg = Room.Take(itemId, PlayerInventory);
+        Console.WriteLine(msg);
+    }
+
+    public void Fight()
+    {
+        var result = Room.Fight(PlayerInventory);
+        switch (result)
         {
-            var combat = new CombatService(PlayerInventory);
-            var result = combat.Fight(CurrentRoom);
-
-            switch (result)
-            {
-                case FightResult.NoMonsterHere:
-                    Console.WriteLine("Er is hier geen monster.");
-                    break;
-
-                case FightResult.NoWeapon:
-                    GameOver = true;
-                    Console.WriteLine("Je hebt geen zwaard! Het monster verslaat je. GAME OVER.");
-                    break;
-
-                case FightResult.MonsterAlreadyDead:
-                    Console.WriteLine("Het monster is al verslagen.");
-                    break;
-
-                case FightResult.Victory:
-                    // Monster is verslagen, kamer is veilig
-                    break;
-            }
+            case FightResult.NoMonsterHere:
+                Console.WriteLine("Er is hier geen monster.");
+                break;
+            case FightResult.NoWeapon:
+                GameOver = true;
+                Console.WriteLine("Je hebt geen zwaard! Het monster verslaat je. GAME OVER.");
+                break;
+            case FightResult.MonsterAlreadyDead:
+                Console.WriteLine("Het monster is al verslagen.");
+                break;
+            case FightResult.Victory:
+                Console.WriteLine("Je verslaat het monster! De kamer is nu veilig.");
+                break;
         }
     }
 }

@@ -123,41 +123,22 @@ namespace MiniTextAdventure
             return MoveResult.Moved;
         }
 
-        public string Take(string itemId)
+        public FightResult Fight(Inventory inventory)
         {
-            if (CurrentRoom.Items.Contains(itemId))
-            {
-                CurrentRoom.Items.Remove(itemId);
-
-                if (itemId == "key")
-                {
-                    PlayerHasKey = true;
-                }
-              
-                if (itemId == "sword")
-                {
-                    PlayerHasSword = true;
-                }
-
-                return $"Je hebt {itemId} opgepakt.";
-            }
-            return $"Er is geen {itemId} hier.";
+            var combat = new CombatService(inventory);
+            return combat.Fight(CurrentRoom);
         }
 
-        public string Fight() // moet return doen anders werkt testmethod niet
+        public string Take(string itemId, Inventory inventory)
         {
-            if (!CurrentRoom.HasMonster)
-            {
-                return "Er is hier niets om te bevechten.";
-            }
-                
-            if (!PlayerHasSword)
-            {
-                return "Je hebt geen zwaard! Het monster verslindt je. Dood.";
-            }
+            if (!CurrentRoom.Items.Contains(itemId)) return $"Er is geen {itemId} hier.";
+            CurrentRoom.Items.Remove(itemId);
+            inventory.Add(itemId);
 
-            CurrentRoom.MonsterAlive = false;
-            return "Je hebt het monster verslagen!";
+            if (itemId == "key") PlayerHasKey = true;
+            if (itemId == "sword") PlayerHasSword = true;
+
+            return $"Je hebt {itemId} opgepakt.";
         }
     }
 }
