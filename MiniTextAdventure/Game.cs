@@ -103,21 +103,28 @@ namespace MiniTextAdventure
 
         public void Fight()
         {
-            if (!CurrentRoom.HasMonster || !CurrentRoom.MonsterAlive)
-            {
-                Console.WriteLine("Er is hier geen monster.");
-                return;
-            }
+            var combat = new CombatService(PlayerInventory);
+            var result = combat.Fight(CurrentRoom);
 
-            if (!PlayerInventory.Has("sword"))
+            switch (result)
             {
-                GameOver = true;
-                Console.WriteLine("Je hebt geen zwaard! Het monster verslaat je. GAME OVER.");
-                return;
-            }
+                case FightResult.NoMonsterHere:
+                    Console.WriteLine("Er is hier geen monster.");
+                    break;
 
-            CurrentRoom.MonsterAlive = false;
-            Console.WriteLine("Je gebruikt je zwaard en verslaat het monster! De kamer is nu veilig.");
+                case FightResult.NoWeapon:
+                    GameOver = true;
+                    Console.WriteLine("Je hebt geen zwaard! Het monster verslaat je. GAME OVER.");
+                    break;
+
+                case FightResult.MonsterAlreadyDead:
+                    Console.WriteLine("Het monster is al verslagen.");
+                    break;
+
+                case FightResult.Victory:
+                    // Monster is verslagen, kamer is veilig
+                    break;
+            }
         }
     }
 }
