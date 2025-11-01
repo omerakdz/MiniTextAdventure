@@ -38,7 +38,7 @@ namespace MiniTextAdventureTests
             game.Fight();
 
             Assert.IsFalse(game.GameOver, "GameOver mag false zijn als je vecht met zwaard");
-            Assert.IsFalse(game.Current.MonsterAlive, "MonsterAlive moet false zijn na overwinning");
+            Assert.IsFalse(game.CurrentRoom.MonsterAlive, "MonsterAlive moet false zijn na overwinning");
         }
 
         [TestMethod]
@@ -58,7 +58,7 @@ namespace MiniTextAdventureTests
             // Terug naar beneden
             game.Move(Direction.North);
 
-            Assert.AreEqual("Beneden", game.Current.Name, "Speler moet terug in Beneden zijn");
+            Assert.AreEqual("Beneden", game.CurrentRoom.Name, "Speler moet terug in Beneden zijn");
             Assert.IsFalse(game.GameOver, "GameOver mag false zijn na winst");
         }
     }

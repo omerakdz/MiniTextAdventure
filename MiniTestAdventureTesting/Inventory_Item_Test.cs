@@ -2,46 +2,46 @@
 namespace MiniTestAdventureTesting
 {
     [TestClass]
-    public sealed class Inventory_Item_Test
+    public sealed class InventoryItemTest
     {
-        Inventory inv = new Inventory();
+        Inventory playerInventory = new Inventory();
+
         [TestMethod]
         public void Add_ShouldAdd()
         {
-            
             Item sword = new Item("sword", "Zwaard", "Een oud maar scherp zwaard.");
 
-            inv.Add(sword);
+            playerInventory.Add(sword);
 
-            Assert.IsTrue(inv.Has(sword.Id),"You should have a sword in je inventory");
-            
+            Assert.IsTrue(playerInventory.Has(sword.Id), "Het zwaard zou in de inventaris moeten zitten.");
         }
+
         [TestMethod]
         public void Remove_ShouldRemove()
         {
-            
-            Item light = new Item("flashlight", "Zaklamp", "Its a light source, helping you see in the dark.");
+            Item flashlight = new Item("flashlight", "Zaklamp", "Een lichtbron die helpt in het donker.");
 
-            inv.Add(light);
-            Assert.IsTrue(inv.Has(light.Id),$"De {light.Name} is niet toegevoegd in je inventaris.");
+            playerInventory.Add(flashlight);
+            Assert.IsTrue(playerInventory.Has(flashlight.Id), $"De {flashlight.Name} is niet toegevoegd in je inventaris.");
 
-            inv.Remove(light);
-            Assert.IsFalse(inv.Has(light.Id), $"De {light.Name} zit nog steeds in je inventory.");
+            playerInventory.Remove(flashlight);
+            Assert.IsFalse(playerInventory.Has(flashlight.Id), $"De {flashlight.Name} zit nog steeds in je inventaris.");
         }
+
         [TestMethod]
-        public void ListItem_Shouldwork()
+        public void ListItems_ShouldWork()
         {
-            Item sandwich = new Item("sandwich", "Sandwich", "Food thats made of ingredients between two bread slices");
-            Item phone = new Item("phone", "Phone", "An invention that will make you be able to speak to people from far away");
-            Item gum = new Item("gum", "gum", "something you can chew on");
+            Item sandwich = new Item("sandwich", "Broodje", "Eten bestaande uit ingrediënten tussen twee sneetjes brood.");
+            Item phone = new Item("phone", "Telefoon", "Een uitvinding om met mensen ver weg te spreken.");
+            Item gum = new Item("gum", "Kauwgom", "Iets wat je kunt kauwen.");
             Item sword = new Item("sword", "Zwaard", "Een oud maar scherp zwaard.");
 
-            inv.Add(sandwich);
-            inv.Add(phone);
-            inv.Add(gum); 
+            playerInventory.Add(sandwich);
+            playerInventory.Add(phone);
+            playerInventory.Add(gum);
 
-            Assert.IsNotNull(inv.ListItems(),"Geeft null terug, dus leeg.");
-            Assert.IsFalse(inv.ListItems().Contains(sword.Name), "Inventory should contain 'Zwaard'");
-        }                                                                
-    }       
+            Assert.IsNotNull(playerInventory.ListItems(), "Geeft null terug, dus de inventaris is leeg.");
+            Assert.IsFalse(playerInventory.ListItems().Contains(sword.Name), "De inventaris zou 'Zwaard' niet moeten bevatten.");
+        }
+    }
 }
