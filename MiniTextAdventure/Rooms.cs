@@ -46,7 +46,7 @@ namespace MiniTextAdventure
         private void SetupWorld()
         {
             //  kamers
-            var start = new Room("Start", "Je staat in de startkamer. Er zijn uitgangen in alle richtingen.");
+            var start = new Room("Startkamer", "Je staat in de startkamer. Er zijn uitgangen in alle richtingen.");
             var left = new Room("Valkamer", "Je valt in een diepe put. Dood.") { IsLethal = true };
             var right = new Room("Sleutelkamer", "Er ligt een sleutel hier.");
             var up = new Room("Deur", "Een deur die naar vrijheid leidt.") { RequiresItem = true, RequiredItemId = "key" };
@@ -92,7 +92,6 @@ namespace MiniTextAdventure
             {
                 return MoveResult.InvalidDirection;
             }
-                
             
             if (target.IsLethal) 
             {
@@ -122,6 +121,7 @@ namespace MiniTextAdventure
 
             return MoveResult.Moved;
         }
+
 
         public FightResult Fight(Inventory inventory)
         {
