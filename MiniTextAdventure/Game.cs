@@ -112,10 +112,6 @@ public class Game
                 Console.WriteLine("Je hebt een sleutel nodig om deze kamer te betreden.");
                 break;
             case MoveResult.Died:
-                if (room.CurrentRoom.Name == "Start")
-                {
-                    Console.WriteLine();
-                }
                 Console.WriteLine("Je bent dood. GAME OVER.");
                 running = false;
                 break;

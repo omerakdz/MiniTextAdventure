@@ -7,18 +7,20 @@ namespace MiniTextAdventureTests
     public class CombatTests
     {
         [TestMethod]
-        public void Fight_WithoutSword_SetsGameOver()
+        public void Fight_WithoutSword_PlayerDies()
         {
             Game game = new Game();
 
-            game.Move(Direction.South);
-       
-            game.Move(Direction.South);
+            // naar kelder
+            game.Move("s");
+            // naar monsterkamer
+            game.Move("s");
 
-            // Fight without sword
+            // vecht zonder zwaard
             game.Fight();
 
-            Assert.IsTrue(game.GameOver, "GameOver mag alleen true zijn als de speler zonder een zwaard vecht.");
+            // speler hoort dood te zijn (running = false)
+            Assert.IsFalse(game.running, "Speler zou dood moeten zijn na vechten zonder zwaard.");
         }
 
         [TestMethod]
@@ -26,17 +28,18 @@ namespace MiniTextAdventureTests
         {
             Game game = new Game();
 
-            
-            game.Move(Direction.South);
-            
+            // naar kelder
+            game.Move("s");
+            // zwaard pakken
             game.Take("sword");
-            // monster kamer
-            game.Move(Direction.South);
+            // naar monsterkamer
+            game.Move("s");
 
+            // vecht met zwaard
             game.Fight();
 
-            Assert.IsFalse(game.GameOver, "GameOver zou vals moeten zijn als de speler met een zwaard vecht");
-            Assert.IsFalse(game.Room.CurrentRoom.MonsterAlive, "MonsterAlive zou na de overwinning vals moeten zijn");
+            Assert.IsTrue(game.room.CurrentRoom.MonsterAlive == false, "MonsterAlive moet false zijn na overwinning.");
+            Assert.IsTrue(game.running, "Spel moet nog lopen na winst op monster.");
         }
 
         [TestMethod]
@@ -44,20 +47,19 @@ namespace MiniTextAdventureTests
         {
             Game game = new Game();
 
-        
-            game.Move(Direction.South);
-          
+            // zwaard ophalen
+            game.Move("s");
             game.Take("sword");
-            // monster kamer
-            game.Move(Direction.South);
-       
+
+            // naar monsterkamer
+            game.Move("s");
             game.Fight();
 
-         
-            game.Move(Direction.North);
+            // terug naar beneden
+            game.Move("n");
 
-            Assert.AreEqual("Beneden", game.Room.CurrentRoom.Name, "Speler moet terug in Beneden zijn");
-            Assert.IsFalse(game.GameOver, "GameOver mag false zijn na winst");
+            Assert.AreEqual("Kelder", game.room.CurrentRoom.Name, "Speler moet terug zijn in de kelder.");
+            Assert.IsTrue(game.running, "Spel moet nog actief zijn na veilige terugkeer.");
         }
     }
 }
