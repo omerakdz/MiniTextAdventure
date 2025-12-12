@@ -2,10 +2,14 @@
 
 public class Game
 {
+    private readonly ApiClient _api;
     public Rooms room = new Rooms();
     public Inventory PlayerInventory = new Inventory();
-    public bool running; 
-
+    public bool running;
+    public Game(ApiClient api)
+    {
+        _api = api;
+    }
     public void Start()
     {
         running = true;
@@ -87,7 +91,7 @@ public class Game
 
     }
 
-    public void Move(string dir)
+    public async void Move(string dir)
     {
         Direction direction;
         switch (dir)
@@ -101,30 +105,62 @@ public class Game
                 return;
         }
 
-        
+        // Peek naar de volgende kamer
+        var nextRoom = room.Peek(direction);
+
+        if (nextRoom == null)
+        {
+            Console.WriteLine("Je kunt hier niet heen.");
+            return;
+        }
+
+        // Check of de kamer een keyshare vereist
+        if (nextRoom.RequiresKeyshare)
+        {
+            Console.WriteLine("Deze kamer is beveiligd. Keyshare wordt opgehaald...");
+
+            var key = await _api.GetKeyshare(nextRoom.RequiredKeyId!);
+
+            if (key == null)
+            {
+                Console.WriteLine("Je hebt geen toegang tot deze kamer.");
+                return;
+            }
+
+            Console.WriteLine($"Keyshare ontvangen: {key}");
+            // Hier kun je later decryptie toevoegen
+        }
+
+        // Normale movement
         var result = room.Go(direction);
+
         switch (result)
         {
             case MoveResult.Moved:
                 Console.WriteLine($"Je gaat naar {room.CurrentRoom.Name}.");
                 break;
+
             case MoveResult.BlockedMissingKey:
                 Console.WriteLine("Je hebt een sleutel nodig om deze kamer te betreden.");
                 break;
+
             case MoveResult.Died:
                 Console.WriteLine("Je bent dood. GAME OVER.");
                 running = false;
                 break;
+
             case MoveResult.Won:
                 Console.WriteLine($"Je gaat naar {room.CurrentRoom.Name}.");
                 Console.WriteLine("Je opent de deur en ontsnapt! Je wint!");
                 running = false;
                 break;
+
             case MoveResult.InvalidDirection:
                 Console.WriteLine("Je kunt hier niet heen.");
                 break;
         }
     }
+
 
     public void Take(string itemId)
     {

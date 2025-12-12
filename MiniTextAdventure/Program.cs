@@ -1,11 +1,41 @@
-﻿namespace MiniTextAdventure
+﻿using Microsoft.Extensions.DependencyInjection;
+using MiniTextAdventure;
+
+    public class Program
 {
-    internal class Program
+    static async Task Main(string[] args)
     {
-        static void Main(string[] args)
+        var services = new ServiceCollection();
+
+        services.AddHttpClient<ApiClient>(client =>
         {
-            Game game = new Game();
-            game.Start();
+            client.BaseAddress = new Uri("http://localhost:5000");
+        });
+
+        services.AddSingleton<Game>();
+
+        var provider = services.BuildServiceProvider();
+
+        var api = provider.GetRequiredService<ApiClient>();
+
+        Console.WriteLine("Login vereist!");
+        Console.Write("Username: ");
+        string username = Console.ReadLine();
+
+        Console.Write("Password: ");
+        string password = Console.ReadLine();
+
+        bool ok = await api.Login(username, password);
+
+        if (!ok)
+        {
+            Console.WriteLine("Login mislukt.");
+            return;
         }
+
+        Console.WriteLine("Login gelukt!");
+
+        var game = provider.GetRequiredService<Game>();
+        game.Start();
     }
 }

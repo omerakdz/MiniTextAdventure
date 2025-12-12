@@ -140,5 +140,13 @@ namespace MiniTextAdventure
 
             return $"Je hebt {itemId} opgepakt.";
         }
+        public Room? Peek(Direction dir)
+        {
+            if (!CurrentRoom.Exits.TryGetValue(dir, out var next))
+                return null;
+
+            return next;
+        }
+
     }
 }

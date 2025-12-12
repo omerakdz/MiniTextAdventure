@@ -28,7 +28,10 @@ namespace MiniTextAdventure
             get { return isLethal;}
             set { isLethal = value;}
         }
-
+        /*--*/
+        public bool RequiresKeyshare { get; set; } = false;
+        public string? RequiredKeyId { get; set; }
+        /*--*/
         private bool requiresItem;
         public bool RequiresItem 
         {
