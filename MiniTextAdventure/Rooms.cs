@@ -1,59 +1,58 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MiniTextAdventure
 {
-    public enum MoveResult{ Moved, BlockedMissingKey, Died, Won, InvalidDirection }
+    public enum MoveResult { Moved, BlockedMissingKey, Died, Won, InvalidDirection }
+
     public class Rooms
     {
-        private Dictionary<string, Room> allRooms;
-        public Dictionary<string, Room> AllRooms 
-        {
-            get { return allRooms; } 
-            set { allRooms = value; } 
-        }
+        public Dictionary<string, Room> AllRooms { get; set; }
+        public Room CurrentRoom { get; set; }
 
-        private Room currentRoom;
-        public Room CurrentRoom 
-        {
-            get { return currentRoom; }
-            set { currentRoom = value; } 
-        }
-
-        private bool playerHasKey;
-        public bool PlayerHasKey 
-        {
-            get { return playerHasKey; }
-            set { playerHasKey = value; }
-        }
-
-        private bool playerHasSword;
-        public bool PlayerHasSword 
-        {
-            get { return playerHasSword; }
-            set { playerHasSword = value; }
-        }
+        public bool PlayerHasKey { get; set; }
+        public bool PlayerHasSword { get; set; }
 
         public Rooms()
         {
-            allRooms = new Dictionary<string, Room>();
+            AllRooms = new Dictionary<string, Room>();
             SetupWorld();
         }
 
         private void SetupWorld()
         {
-            //  kamers
+            // Kamers
             var start = new Room("Startkamer", "Je staat in de startkamer. Er zijn uitgangen in alle richtingen.");
-            var left = new Room("Valkamer", "Je valt in een diepe put. Dood.") { IsLethal = true };
-            var right = new Room("Sleutelkamer", "Er ligt een sleutel hier.");
-            var up = new Room("Deur", "Een deur die naar vrijheid leidt.") { RequiresItem = true, RequiredItemId = "key" };
-            var down = new Room("Kelder", "Een donkere kelder. Je ziet iets glinsteren: een zwaard.");
-            var deep = new Room("Monsterkamer", "Een groot monster gromt in de schaduw.") { HasMonster = true, MonsterAlive = true };
 
-            // Connecties (heen en terug)
+            var left = new Room("Valkamer", "Je valt in een diepe put. Dood.")
+            {
+                IsLethal = true
+            };
+
+            var right = new Room("Sleutelkamer", "Er ligt een sleutel hier.");
+
+            var up = new Room("Deur", "Een deur die naar vrijheid leidt.")
+            {
+                RequiresItem = true,
+                RequiredItemId = "key"
+            };
+
+            var down = new Room("Kelder", "Een donkere kelder. Je ziet iets glinsteren: een zwaard.");
+
+            var deep = new Room("Monsterkamer", "Een groot monster gromt in de schaduw.")
+            {
+                HasMonster = true,
+                MonsterAlive = true
+            };
+
+            // ✅ Voorbeeld beveiligde kamer (keyshare)
+            var secret = new Room("Geheime Kamer", "Een kamer die beveiligd is met een keyshare.")
+            {
+                RequiresKeyshare = true,
+                RequiredKeyId = "room2"
+            };
+
+            // Connecties
             start.Connect(Direction.West, left);
             left.Connect(Direction.East, start);
 
@@ -69,6 +68,10 @@ namespace MiniTextAdventure
             down.Connect(Direction.South, deep);
             deep.Connect(Direction.North, down);
 
+            // ✅ Geheime kamer achter monster
+            deep.Connect(Direction.East, secret);
+            secret.Connect(Direction.West, deep);
+
             // Items
             right.Items.Add("key");
             down.Items.Add("sword");
@@ -80,6 +83,7 @@ namespace MiniTextAdventure
             AllRooms["up"] = up;
             AllRooms["down"] = down;
             AllRooms["deep"] = deep;
+            AllRooms["secret"] = secret;
 
             CurrentRoom = start;
         }
@@ -88,40 +92,25 @@ namespace MiniTextAdventure
         {
             var target = CurrentRoom.GetExit(direction);
 
-            if (target == null) 
-            {
+            if (target == null)
                 return MoveResult.InvalidDirection;
-            }
-            
-            if (target.IsLethal) 
-            {
-                return MoveResult.Died;
-            }
-                
-            if (target.RequiresItem && !PlayerHasKey) 
-            {
-                return MoveResult.BlockedMissingKey;
-            }
-                
 
-            
-            if (CurrentRoom.HasMonster && CurrentRoom.MonsterAlive && direction == Direction.North) 
-            {
+            if (target.IsLethal)
                 return MoveResult.Died;
-            }
-                
+
+            if (target.RequiresItem && !PlayerHasKey)
+                return MoveResult.BlockedMissingKey;
+
+            if (CurrentRoom.HasMonster && CurrentRoom.MonsterAlive && direction == Direction.North)
+                return MoveResult.Died;
+
             CurrentRoom = target;
 
-           
             if (target.Name == "Deur" && PlayerHasKey)
-            {
                 return MoveResult.Won;
-            }
-                
 
             return MoveResult.Moved;
         }
-
 
         public FightResult Fight(Inventory inventory)
         {
@@ -131,7 +120,9 @@ namespace MiniTextAdventure
 
         public string Take(string itemId, Inventory inventory)
         {
-            if (!CurrentRoom.Items.Contains(itemId)) return $"Er is geen {itemId} hier.";
+            if (!CurrentRoom.Items.Contains(itemId))
+                return $"Er is geen {itemId} hier.";
+
             CurrentRoom.Items.Remove(itemId);
             inventory.Add(itemId);
 
@@ -140,6 +131,7 @@ namespace MiniTextAdventure
 
             return $"Je hebt {itemId} opgepakt.";
         }
+
         public Room? Peek(Direction dir)
         {
             if (!CurrentRoom.Exits.TryGetValue(dir, out var next))
@@ -147,6 +139,5 @@ namespace MiniTextAdventure
 
             return next;
         }
-
     }
 }
