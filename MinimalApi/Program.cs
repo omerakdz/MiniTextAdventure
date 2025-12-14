@@ -16,7 +16,7 @@ namespace MiniApiTextAdv
             Microsoft.IdentityModel.Logging.IdentityModelEventSource.ShowPII = true;
 
             var builder = WebApplication.CreateBuilder(args); 
-            var jwtKey = builder.Configuration["JwtKey"] ?? "ThisIsA_VeryLongJwtKey_ForDevOnly_1234567890";
+            var jwtKey = builder.Configuration["JwtKey"] ?? "zyhgo1-syzpiv-tivrUx";
 
             builder.Services.AddSingleton<UserRepository>();
             

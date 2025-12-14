@@ -12,9 +12,6 @@ namespace MiniApiTextAdv
 {
     public static class AuthEndpoints
     {
-        // -------------------------------
-        // REGISTER
-        // -------------------------------
         public static IResult Register([FromBody] RegisterRequest request, UserRepository repo)
         {
             if (string.IsNullOrWhiteSpace(request.Username) ||
@@ -27,8 +24,7 @@ namespace MiniApiTextAdv
             {
                 return Results.BadRequest("Gebruiker bestaat al.");
             }
-
-            // Hash wachtwoord
+            
             string hash = ComputeSha256(request.Password);
 
             var user = new User
@@ -42,10 +38,7 @@ namespace MiniApiTextAdv
 
             return Results.Ok("Registratie gelukt.");
         }
-
-        // -------------------------------
-        // LOGIN
-        // -------------------------------
+        
         public static IResult Login([FromBody] LoginRequest request, UserRepository repo, string jwtKey)
         {
             var user = repo.GetByUsername(request.Username);
@@ -71,18 +64,15 @@ namespace MiniApiTextAdv
                 return Results.BadRequest("Ongeldige login.");
             }
 
-            // Reset bij succes
+
             user.FailedLoginAttempts = 0;
 
-            // JWT genereren
+
             string token = GenerateJwt(user, jwtKey);
 
             return Results.Ok(new { token });
         }
-
-        // -------------------------------
-        // ME (JWT uitlezen)
-        // -------------------------------
+        
         public static IResult Me(ClaimsPrincipal user)
         {
             var username = user.Identity?.Name;
@@ -90,10 +80,6 @@ namespace MiniApiTextAdv
 
             return Results.Ok(new { username, role });
         }
-
-        // -------------------------------
-        // Helpers
-        // -------------------------------
         private static string ComputeSha256(string input)
         {
             using var sha = SHA256.Create();
