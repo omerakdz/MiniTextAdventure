@@ -10,7 +10,7 @@ public class Game
     {
         _api = api;
     }
-    public void Start()
+    public async Task Start()
     {
         running = true;
 
@@ -36,7 +36,7 @@ public class Game
                     break;
 
                 case "look":
-                    Look();
+                    await Look();
                     break;
 
                 case "inventory":
@@ -47,18 +47,18 @@ public class Game
                     if (argument == "")
                         Console.WriteLine("Wat wil je oppakken?");
                     else
-                        Console.WriteLine(room.Take(argument, PlayerInventory));
+                        await Take(argument);
                     break;
 
                 case "go":
                     if (argument == "")
                         Console.WriteLine("Waarheen? (n, e, s, w)");
                     else
-                        Move(argument);
+                        await Move(argument);
                     break;
 
                 case "fight":
-                    Fight();
+                    await Fight();
                     break;
 
                 case "quit":
@@ -84,107 +84,81 @@ public class Game
         Console.WriteLine("quit - sluit het spel af");
     }
 
-    public void Look()
+    public async Task Look()
     {
-        Console.WriteLine($"[{room.CurrentRoom.Name}]");
-        Console.WriteLine($"{room.CurrentRoom.Description}");
-
-    }
-
-    public async void Move(string dir)
-    {
-        Direction direction;
-        switch (dir)
+        var room = await _api.GetCurrentRoom();
+        if (room == null)
         {
-            case "n": direction = Direction.North; break;
-            case "e": direction = Direction.East; break;
-            case "s": direction = Direction.South; break;
-            case "w": direction = Direction.West; break;
-            default:
-                Console.WriteLine("Ongeldige richting.");
-                return;
-        }
-
-        // Peek naar de volgende kamer
-        var nextRoom = room.Peek(direction);
-
-        if (nextRoom == null)
-        {
-            Console.WriteLine("Je kunt hier niet heen.");
+            Console.WriteLine("Fout: kon kamer niet ophalen.");
             return;
         }
-
-        // Check of de kamer een keyshare vereist
-        if (nextRoom.RequiresKeyshare)
+        Console.WriteLine($"[{room.Name}]");
+        Console.WriteLine($"{room.Description}");
+    
+        if (room.Items.Count > 0)
         {
-            Console.WriteLine("Deze kamer is beveiligd. Keyshare wordt opgehaald...");
-
-            var key = await _api.GetKeyshare(nextRoom.RequiredKeyId!);
-
-            if (key == null)
-            {
-                Console.WriteLine("Je hebt geen toegang tot deze kamer.");
-                return;
-            }
-
-            Console.WriteLine($"Keyshare ontvangen: {key}");
-            // Hier kun je later decryptie toevoegen
+            Console.WriteLine("Items hier:");
+            foreach (var item in room.Items)
+                Console.WriteLine($"  - {item.Name}");
         }
+    
+        if (room.HasMonster && room.MonsterAlive)
+            Console.WriteLine("Er is een monster hier!");
+    }
 
-        // Normale movement
-        var result = room.Go(direction);
-
-        switch (result)
+    public async Task Move(string dir)
+    {
+        var result = await _api.MoveAsync(dir);
+    
+        if (result == null)
         {
-            case MoveResult.Moved:
-                Console.WriteLine($"Je gaat naar {room.CurrentRoom.Name}.");
-                break;
-
-            case MoveResult.BlockedMissingKey:
-                Console.WriteLine("Je hebt een sleutel nodig om deze kamer te betreden.");
-                break;
-
-            case MoveResult.Died:
-                Console.WriteLine("Je bent dood. GAME OVER.");
-                running = false;
-                break;
-
-            case MoveResult.Won:
-                Console.WriteLine($"Je gaat naar {room.CurrentRoom.Name}.");
-                Console.WriteLine("Je opent de deur en ontsnapt! Je wint!");
-                running = false;
-                break;
-
-            case MoveResult.InvalidDirection:
-                Console.WriteLine("Je kunt hier niet heen.");
-                break;
+            Console.WriteLine("Fout bij verplaatsen.");
+            return;
+        }
+    
+        if (!result.Success)
+        {
+            Console.WriteLine(result.Message);
+            return;
+        }
+    
+        Console.WriteLine(result.Message);
+    
+        if (result.CurrentRoom != null)
+        {
+            Console.WriteLine($"[{result.CurrentRoom.Name}]");
+            Console.WriteLine($"{result.CurrentRoom.Description}");
+        }
+    
+        if (result.PlayerDied)
+        {
+            Console.WriteLine("GAME OVER.");
+            running = false;
+        }
+    
+        if (result.PlayerWon)
+        {
+            Console.WriteLine("Je wint!");
+            running = false;
         }
     }
 
-
-    public void Take(string itemId)
+    public async Task Take(string itemId)
     {
-        string msg = room.Take(itemId, PlayerInventory);
+        var msg = await _api.TakeAsync(itemId);
         Console.WriteLine(msg);
     }
 
-    public void Fight()
+    public async Task Fight()
     {
-        var result = room.Fight(PlayerInventory);
-        switch (result)
+        var result = await _api.FightAsync();
+    
+        if (result == null)
         {
-            case FightResult.NoMonsterHere:
-                Console.WriteLine("Er is hier geen monster.");
-                break;
-            case FightResult.NoWeapon:
-                Console.WriteLine("Je hebt geen zwaard! Het monster verslaat je. GAME OVER.");
-                break;
-            case FightResult.MonsterAlreadyDead:
-                Console.WriteLine("Het monster is al verslagen.");
-                break;
-            case FightResult.Victory:
-                Console.WriteLine("Je verslaat het monster! De kamer is nu veilig.");
-                break;
+            Console.WriteLine("Fout bij gevecht.");
+            return;
         }
+    
+        Console.WriteLine(result.Message);
     }
 }

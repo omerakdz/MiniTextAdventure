@@ -46,7 +46,7 @@ namespace MiniApiTextAdv
         // -------------------------------
         // LOGIN
         // -------------------------------
-        public static IResult Login([FromBody] LoginRequest request, UserRepository repo, IConfiguration config)
+        public static IResult Login([FromBody] LoginRequest request, UserRepository repo, string jwtKey)
         {
             var user = repo.GetByUsername(request.Username);
 
@@ -75,7 +75,7 @@ namespace MiniApiTextAdv
             user.FailedLoginAttempts = 0;
 
             // JWT genereren
-            string token = GenerateJwt(user, config);
+            string token = GenerateJwt(user, jwtKey);
 
             return Results.Ok(new { token });
         }
@@ -83,7 +83,6 @@ namespace MiniApiTextAdv
         // -------------------------------
         // ME (JWT uitlezen)
         // -------------------------------
-        [Authorize]
         public static IResult Me(ClaimsPrincipal user)
         {
             var username = user.Identity?.Name;
@@ -103,9 +102,9 @@ namespace MiniApiTextAdv
             return Convert.ToHexString(hash);
         }
 
-        private static string GenerateJwt(User user, IConfiguration config)
+        private static string GenerateJwt(User user, string jwtKey)
         {
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["JwtKey"]!));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var claims = new[]

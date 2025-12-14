@@ -9,7 +9,7 @@ using MiniTextAdventure;
 
         services.AddHttpClient<ApiClient>(client =>
         {
-            client.BaseAddress = new Uri("http://localhost:5000");
+            client.BaseAddress = new Uri("http://localhost:5274");
         });
 
         services.AddSingleton<Game>();
@@ -35,7 +35,7 @@ using MiniTextAdventure;
 
         Console.WriteLine("Login gelukt!");
 
-        var game = provider.GetRequiredService<Game>();
-        game.Start();
+        var game = new Game(api);
+        await game.Start();
     }
 }
