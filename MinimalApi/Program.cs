@@ -61,7 +61,10 @@ namespace MiniApiTextAdv
                         ValidateIssuerSigningKey = true,
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
                         ValidateLifetime = true,
-                        ClockSkew = TimeSpan.Zero
+                        ClockSkew = TimeSpan.Zero,
+
+                         NameClaimType = ClaimTypes.Name,
+                        RoleClaimType = ClaimTypes.Role
                     };
                     
                     options.Events = new JwtBearerEvents
@@ -102,11 +105,16 @@ namespace MiniApiTextAdv
 
             app.MapGet("/api/keys/keyshare/{roomId}", KeyEndpoints.GetKeyshare).RequireAuthorization();
 
+
+
+
             // Game endpoints
             app.MapGet("/api/game/current-room",
                 (ClaimsPrincipal user, GameState gameState) =>
                     GameEndpoints.GetCurrentRoom(user, gameState))
                 .RequireAuthorization();
+
+
 
             app.MapPost("/api/game/move",
                 (ClaimsPrincipal user, GameState gameState, MoveRequest req) =>
@@ -129,6 +137,8 @@ namespace MiniApiTextAdv
                 .RequireAuthorization();
 
             app.Run();
+
         }
+        
     }
 }

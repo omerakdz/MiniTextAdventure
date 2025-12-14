@@ -3,6 +3,8 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using MiniApiTextAdv.Models;
+using System;
+using System.Security.Cryptography;
 
 namespace MiniTextAdventure
 {
@@ -45,6 +47,8 @@ namespace MiniTextAdventure
                     new AuthenticationHeaderValue("Bearer", JwtToken);
             }
 
+            Console.WriteLine("TOKEN VAN API:");
+            Console.WriteLine(JwtToken);
             return JwtToken != null;
         }
         

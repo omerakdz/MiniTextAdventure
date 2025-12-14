@@ -11,5 +11,18 @@ namespace MiniApiTextAdv.Models
         public Dictionary<string, List<string>> PlayerInventories { get; set; } = new();
         
         public HashSet<string> UnlockedRooms { get; set; } = new();
+
+
+        private readonly Dictionary<string, Room> _playerRooms = new();
+
+        public Room GetRoomForUser(string username)
+        {
+            if (!_playerRooms.ContainsKey(username))
+                _playerRooms[username] = StartRoom;
+
+            return _playerRooms[username];
+        }
+
     }
+
 }

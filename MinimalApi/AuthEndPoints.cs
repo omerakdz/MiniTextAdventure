@@ -46,39 +46,37 @@ namespace MiniApiTextAdv
         // -------------------------------
         // LOGIN
         // -------------------------------
-        public static IResult Login([FromBody] LoginRequest request, UserRepository repo, string jwtKey)
+
+        public static IResult Login(LoginRequest request, UserRepository repo, string jwtKey)
         {
             var user = repo.GetByUsername(request.Username);
-
             if (user == null)
-                return Results.BadRequest("Ongeldige login.");
+                return Results.BadRequest("Gebruiker bestaat niet.");
 
-            if (user.IsLockedOut)
-                return Results.BadRequest("Account is gelockt na 3 foute pogingen.");
-
-            string hash = ComputeSha256(request.Password);
-
+            var hash = ComputeSha256(request.Password);
             if (hash != user.PasswordHash)
-            {
-                user.FailedLoginAttempts++;
-
-                if (user.FailedLoginAttempts >= 3)
-                {
-                    user.IsLockedOut = true;
-                    return Results.BadRequest("Account gelockt na 3 foute pogingen.");
-                }
-
                 return Results.BadRequest("Ongeldige login.");
-            }
 
-            // Reset bij succes
-            user.FailedLoginAttempts = 0;
+            var claims = new[]
+            {
+        new Claim(ClaimTypes.Name, user.Username),
+        new Claim(ClaimTypes.Role, user.Role)
+    };
 
-            // JWT genereren
-            string token = GenerateJwt(user, jwtKey);
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            return Results.Ok(new { token });
+            var token = new JwtSecurityToken(
+                claims: claims,
+                expires: DateTime.UtcNow.AddHours(1),
+                signingCredentials: creds);
+
+            var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+
+            return Results.Ok(new { token = tokenString });
         }
+
+
 
         // -------------------------------
         // ME (JWT uitlezen)
