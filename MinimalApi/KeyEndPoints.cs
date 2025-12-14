@@ -7,7 +7,7 @@ namespace MiniApiTextAdv
 {
     public static class KeyEndpoints
     {
-        // Simpele keyshares per kamer (student-level)
+        
         private static readonly Dictionary<string, string> Keyshares = new()
         {
             { "room1", "KEYSHARE-R1" },
@@ -17,22 +17,17 @@ namespace MiniApiTextAdv
         [Authorize]
         public static IResult GetKeyshare(string roomId, ClaimsPrincipal user)
         {
-            // 1. Bestaat de kamer?
             if (!Keyshares.ContainsKey(roomId))
                 return Results.NotFound("Onbekende kamer.");
-
-            // 2. Haal rol uit JWT
+            
             var role = user.FindFirst(ClaimTypes.Role)?.Value ?? "Player";
-
-            // 3. Alleen Admin mag ALLES
+            
             if (role == "Admin")
                 return Results.Ok(new { keyshare = Keyshares[roomId] });
-
-            // 4. Players mogen alleen room1
+            
             if (role == "Player" && roomId == "room1")
                 return Results.Ok(new { keyshare = Keyshares[roomId] });
-
-            // 5. Anders: geen toegang
+            
             return Results.Forbid();
         }
     }

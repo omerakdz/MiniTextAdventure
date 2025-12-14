@@ -37,7 +37,7 @@ namespace MiniApiTextAdv
                     PlayerWon = false
                 });
 
-            // Check keyshare (client haalt dit op, maar we valideren hier)
+            
             if (nextRoom.RequiresKeyshare && !gameState.UnlockedRooms.Contains(username + "_" + nextRoom.Name))
             {
                 return Results.Ok(new MoveResultDto
@@ -49,7 +49,7 @@ namespace MiniApiTextAdv
                 });
             }
 
-            // Check lethal
+            
             if (nextRoom.IsLethal && nextRoom.HasMonster && nextRoom.MonsterAlive)
             {
                 gameState.PlayerRooms[username] = nextRoom;
@@ -63,7 +63,7 @@ namespace MiniApiTextAdv
                 });
             }
 
-            // Win condition (voorbeeld: specifieke kamer)
+            
             if (nextRoom.Name == "Exit")
             {
                 gameState.PlayerRooms[username] = nextRoom;
@@ -123,7 +123,7 @@ namespace MiniApiTextAdv
             if (!currentRoom.MonsterAlive)
                 return Results.Ok(new { success = false, message = "Het monster is al dood." });
 
-            // Check inventory for weapon
+            
             var inventory = gameState.PlayerInventories.ContainsKey(username) 
                 ? gameState.PlayerInventories[username] 
                 : new List<string>();

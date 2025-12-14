@@ -6,6 +6,7 @@ public class Game
     public Rooms room = new Rooms();
     public Inventory PlayerInventory = new Inventory();
     public bool running;
+    public Game() : this(new ApiClient(new HttpClient())) { }
     public Game(ApiClient api)
     {
         _api = api;

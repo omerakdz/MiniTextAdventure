@@ -16,33 +16,31 @@ namespace MiniApiTextAdv
             Microsoft.IdentityModel.Logging.IdentityModelEventSource.ShowPII = true;
 
             var builder = WebApplication.CreateBuilder(args); 
-            var jwtKey = builder.Configuration["JwtKey"] ?? "ThisIsA_VeryLongJwtKey_ForDevOnly_1234567890";
+            var jwtKey = builder.Configuration["JwtKey"] ?? "zyhgo1-syzpiv-tivrUx";
 
             builder.Services.AddSingleton<UserRepository>();
             
-            // GameState toevoegen
+
             builder.Services.AddSingleton<GameState>(sp =>
             {
                 var gs = new GameState();
-                
-                // Maak kamers
+
                 var entrance = new Room("Ingang", "Je staat in een donkere gang.");
                 var treasureRoom = new Room("Schatzkamer", "Goud en juwelen overal!");
                 var monsterRoom = new Room("Monster Kamer", "ROOOAR!");
                 var exit = new Room("Exit", "Vrijheid!");
                 
-                // Connect kamers
+
                 entrance.Connect(Direction.North, treasureRoom);
                 treasureRoom.Connect(Direction.South, entrance);
                 treasureRoom.Connect(Direction.East, monsterRoom);
                 monsterRoom.Connect(Direction.West, treasureRoom);
                 monsterRoom.Connect(Direction.North, exit);
-                
-                // Items toevoegen
+
                 entrance.Items.Add("key");
                 treasureRoom.Items.Add("sword");
                 
-                // Monster setup
+
                 monsterRoom.HasMonster = true;
                 monsterRoom.MonsterAlive = true;
                 monsterRoom.IsLethal = true;
@@ -108,7 +106,7 @@ namespace MiniApiTextAdv
 
 
 
-            // Game endpoints
+
             app.MapGet("/api/game/current-room",
                 (ClaimsPrincipal user, GameState gameState) =>
                     GameEndpoints.GetCurrentRoom(user, gameState))

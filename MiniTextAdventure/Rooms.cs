@@ -21,7 +21,6 @@ namespace MiniTextAdventure
 
         private void SetupWorld()
         {
-            // Kamers
             var start = new Room("Startkamer", "Je staat in de startkamer. Er zijn uitgangen in alle richtingen.");
 
             var left = new Room("Valkamer", "Je valt in een diepe put. Dood.")
@@ -45,14 +44,13 @@ namespace MiniTextAdventure
                 MonsterAlive = true
             };
 
-            // ✅ Voorbeeld beveiligde kamer (keyshare)
             var secret = new Room("Geheime Kamer", "Een kamer die beveiligd is met een keyshare.")
             {
                 RequiresKeyshare = true,
                 RequiredKeyId = "room2"
             };
 
-            // Connecties
+
             start.Connect(Direction.West, left);
             left.Connect(Direction.East, start);
 
@@ -67,16 +65,15 @@ namespace MiniTextAdventure
 
             down.Connect(Direction.South, deep);
             deep.Connect(Direction.North, down);
-
-            // ✅ Geheime kamer achter monster
+            
             deep.Connect(Direction.East, secret);
             secret.Connect(Direction.West, deep);
 
-            // Items
+         
             right.Items.Add("key");
             down.Items.Add("sword");
 
-            // Toevoegen aan map
+
             AllRooms["start"] = start;
             AllRooms["left"] = left;
             AllRooms["right"] = right;
